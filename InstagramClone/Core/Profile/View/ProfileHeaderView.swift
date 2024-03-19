@@ -10,16 +10,13 @@ import SwiftUI
 struct ProfileHeaderView: View {
     
     let user: User
+    @State private var showEditProfile = false
     
     var body: some View {
         VStack (spacing: 10){
             // profile pic and stats
             HStack {
-                Image(user.profileImageUrl ?? " ")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 80, height: 80)
-                    .clipShape(.circle)
+                CircularProfileImageView(user: user, size: .large)
             
                 Spacer()
                 
@@ -44,33 +41,39 @@ struct ProfileHeaderView: View {
                     Text(bio)
                         .font(.footnote)
                 }
-                
-                Text(user.username)
             }
             .padding(.horizontal)
             .frame(width: 400, alignment: .leading)
             
             // edit profile (action button)
             Button {
-                // action
+                if user.isCurrentUser {
+                    showEditProfile.toggle()
+                }
+                else {
+                    print("Follow user..")
+                }
             } label: {
-                Text("Follow")
+                Text(user.isCurrentUser ? "Edit Profile" : "Follow")
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .frame(width: 360, height: 32)
-                    .background(Color(.systemBlue))
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                    .background(user.isCurrentUser ? .white : Color(.systemBlue))
+                    .foregroundColor(user.isCurrentUser ? .black : .white)
+                    .cornerRadius(6)
                 // Defines a RoundedRectangual overlay over the text and then the stroke defines the the boundary of the overlay to be considered with desired (content: , lineWidth:)
                 
-//                    .overlay(
-//                                RoundedRectangle(cornerRadius: 6)
-//                                    .stroke(Color.gray, lineWidth: 1)
-//                            )
+                    .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(user.isCurrentUser ? .gray : .clear, lineWidth: 1)
+                            )
             }
             
             Divider()
         }
+        .fullScreenCover(isPresented: $showEditProfile, content: {
+            EditProfileView(user: user)
+        })
     }
 }
 
